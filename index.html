@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stall Schema</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .today-indicator {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }        
+        
+        .legend-item.today-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 15px 23px;
+            border-radius: 300px;
+            color: white;
+            flex-direction: column;
+            justify-content: center;
+            background-color: var(--primary-color);
+            z-index: 100;
+        }
+        
+        .today-circle-example {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3em;
+            font-weight: 500;
+        }
+
+        #print-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            background-color: black;
+            color: white;
+            padding: 30px;
+        }
+        
+        :root {
+            --primary-color: #212121;
+            --primary-light: #f5f5f5;
+            --accent-color: #757575;
+            --text-color: #333333;
+            --border-color: #eeeeee;
+            --inactive-bg: #f9f9f9;
+            --active-bg: #ffffff;
+            --weekend-color: #f44336;
+            --blue-color: #2196f3;
+            --orange-color: #ff9800;
+            --green-color: #4caf50;
+            --border-radius: 8px;
+            --box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            --transition: all 0.2s ease;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+        
+        .app-header {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        h1 {
+            font-weight: 300;
+            font-size: 2em;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+            letter-spacing: -0.5px;
+        }
+        
+        .month-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .month-display {
+            font-size: 1.2em;
+            font-weight: 400;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-btn {
+            background: transparent;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--primary-color);
+            transition: var(--transition);
+        }
+        
+        .nav-btn:hover {
+            background: var(--primary-light);
+        }
+        
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            color: var(--text-color);
+            margin-bottom: 30px;
+        }
+        
+        .day-header {
+            text-align: center;
+            padding: 8px 0;
+            font-size: 0.85em;
+            font-weight: 500;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+        }
+        
+        .weekend {
+            color: var(--weekend-color);
+        }
+
+        .date-cell {
+            background: var(--active-bg);
+            min-height: 110px;
+            border-radius: var(--border-radius);
+            padding: 10px;
+            position: relative;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+        }
+        
+        .date-cell:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .date-number {
+            font-size: 0.9em;
+            font-weight: 400;
+            color: var(--accent-color);
+        }
+        
+        .weekend-date {
+            color: var(--weekend-color);
+        }
+        
+        .inactive {
+            background: var(--inactive-bg);
+            color: #bbb;
+            box-shadow: none;
+        }
+        
+        .inactive:hover {
+            box-shadow: none;
+        }
+        
+        .today {
+            position: relative;
+        }
+        
+        .date-number.today-circle {
+            background-color: var(--primary-color);
+            color: white;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: -3px;
+            margin-left: -3px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .today::after {
+            position: absolute;
+            bottom: 5px;
+            right: 8px;
+            font-size: 0.7em;
+            color: var(--primary-color);
+            background-color: rgba(33, 33, 33, 0.05);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        
+        .events {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .event {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: var(--transition);
+            font-size: 0.9em;
+            border-left: 2px solid transparent;
+        }
+        
+        .event:hover {
+            background: var(--primary-light);
+        }
+        
+        .event-morning i {
+            color: #ff9800;
+        }
+        
+        .event-lunch i {
+            color: #2196f3;
+        }
+        
+        .event-evening i {
+            color: #673ab7;
+        }
+        
+        .event.missing-feed {
+            background-color: rgba(244, 67, 54, 0.05);
+            border-left: 2px solid var(--weekend-color);
+        }
+        
+        .event.missing-feed:hover {
+            background-color: rgba(244, 67, 54, 0.1);
+        }
+        
+        .missing-feed-text {
+            color: var(--weekend-color);
+            margin-left: 5px;
+            font-size: 0.9em;
+        }
+        
+        .empty-event {
+            color: #bbb;
+            font-weight: 300;
+        }
+        
+        .person-name {
+            font-weight: 400;
+            text-align: end;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 15px 0;
+            border-top: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.85em;
+            color: var(--accent-color);
+        }
+        
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            margin-right: 8px;
+            border-radius: 50%;
+        }
+        
+        .legend-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1em;
+        }
+        
+        .legend-missing-feed {
+            width: 14px;
+            height: 14px;
+            margin-right: 8px;
+            background-color: rgba(244, 67, 54, 0.05);
+            border-left: 2px solid var(--weekend-color);
+            display: inline-block;
+        }
+        
+        .red-border {
+            border: 1px solid var(--weekend-color);
+            width: 10px;
+            height: 10px;
+            margin-right: 8px;
+            border-radius: 50%;
+        }
+        
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .icon-marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+        }
+
+        .cleaning-icon {
+            color: var(--blue-color);
+            right: 40px;
+            top: 10px;
+        }
+
+        .mats-icon {
+            color: var(--orange-color);
+            right: 15px;
+            top: 10px;
+        }
+
+        .week-number {
+            position: absolute;
+            left: -30px;
+            font-size: 0.7em;
+            color: var(--accent-color);
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--primary-light);
+        }
+
+        .options {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--accent-color);
+            transition: var(--transition);
+            font-size: 0.8em;
+        }
+        
+        .options:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .modal-header h2 {
+            font-size: 1.4em;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .modal-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .selected-date {
+            display: inline-block;
+            background-color: var(--primary-light);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .marker-container {
+            display: flex;
+            align-items: center;
+            background-color: #f9f9f9;
+            padding: 14px;
+            border-radius: 10px;
+            margin: 10px 0;
+            transition: var(--transition);
+        }
+        
+        .marker-container:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .marker-icon-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: 10px;
+            margin-bottom: 0;
+        }
+
+        .marker-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        .marker-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+        }
+ 
+        .close {
+            cursor: pointer;
+            font-size: 1.2em;
+            color: var(--accent-color);
+            transition: var(--transition);
+        }
+        
+        .close:hover {
+            color: var(--primary-color);
+        }
+        
+        form div {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.9em;
+            color: #333;
+        }
+        
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: var(--transition);
+            background-color: #f9f9f9;
+        }
+        
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 1em;
+            padding-right: 40px;
+        }
+        
+        input[type="text"]:focus, select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(33, 33, 33, 0.1);
+            background-color: white;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            background: #424242;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .button-secondary {
+            background: #f2f2f2;
+            color: #666;
+        }
+        
+        .button-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .notes {
+            font-size: 0.8em;
+            margin-top: 10px;
+            color: #999;
+        }
+
+        .session-notice {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.85em;
+            color: var(--accent-color);
+        }
+        
+        .data-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        
+        .success-message {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            margin: 15px 0;
+            display: none;
+            font-size: 0.9em;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .special-day {
+            color: var(--green-color);
+            font-size: 0.75em;
+            position: absolute;
+            bottom: 6px;
+            left: 10px;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                padding: 0;
+                font-size: 12px;
+            }
+            
+            .app-header button, 
+            .data-controls, 
+            .session-notice, 
+            .today-indicator,
+            .options {
+                display: none !important;
+            }
+            
+            .month-nav {
+                margin-bottom: 10px;
+            }
+            
+            .calendar {
+                page-break-inside: avoid;
+                gap: 2px;
+            }
+            
+            .date-cell {
+                min-height: 90px;
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+            
+            .event {
+                padding: 2px 5px;
+            }
+            
+            .legend {
+                margin-top: 10px;
+            }
+        }
+        
+/* Förbättrad mobilanpassning för Stallschema */
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+        background: #f5f5f5;
+    }
+
+    .app-header {
+        margin-bottom: 15px;
+    }
+
+    h1 {
+        font-size: 1.6em;
+    }
+
+    .month-nav {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: white;
+        margin: 0 -10px 15px -10px;
+        padding: 10px 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .month-display {
+        font-size: 1.1em;
+        font-weight: 500;
+    }
+
+    .calendar {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .day-header {
+        display: none;
+    }
+
+    .date-cell {
+        padding: 15px;
+        border-radius: 12px;
+        min-height: auto;
+    }
+
+    .date-number {
+        font-size: 0.9em;
+        position: absolute;
+        top: 15px;
+        right: 15px;
+    }
+
+    .date-number.today-circle {
+        top: 12px;
+        right: 12px;
+    }
+
+    .events {
+        margin-top: 30px;
+    }
+
+    .event {
+        font-size: 0.95em;
+        padding: 8px 5px;
+    }
+
+    .event i {
+        min-width: 20px;
+    }
+
+    .person-name {
+        word-break: break-word;
+        hyphens: auto;
+    }
+
+    .options {
+        top: 12px;
+        left: 12px;
+    }
+
+    .icon-marker {
+        font-size: 0.8em;
+    }
+
+    .cleaning-icon {
+        right: 30px;
+        top: 14px;
+    }
+
+    .mats-icon {
+        right: 10px;
+        top: 14px;
+    }
+
+    .week-number {
+        display: none;
+    }
+
+    .today-indicator {
+        display: none;
+    }
+
+    .legend-item.today-indicator {
+        display: none;
+    }
+
+    /* Modal improvement for mobile */
+    .modal-content {
+        margin: 5% auto;
+        width: 95%;
+        max-width: none;
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    .modal-header h2 {
+        font-size: 1.3em;
+    }
+
+    .marker-container {
+        padding: 12px;
+    }
+
+    button {
+        padding: 12px 16px;
+    }
+
+    /* Förbättra hur dagar med ikoner visas */
+    .special-day {
+        position: static;
+        margin-top: 5px;
+        margin-bottom: 10px;
+    }
+
+    /* Förbättra synligheten av ikoner och indikatorer */
+    .missing-feed-text {
+        font-size: 0.8em;
+    }
+
+    /* Lägg till lite svep-animation för feedbacken */
+    .date-cell:active {
+        transform: scale(0.98);
+        transition: transform 0.2s;
+    }
+
+    /* Lite mer plats mellan händelserna i listan */
+    .events {
+        gap: 10px;
+    }
+    
+    /* Fixa position för utskriftsknappen */
+    #print-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 90;
+        background-color: white;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        padding: 20px;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <h1>Stallschema</h1>
+    </div>
+    
+    <div class="month-nav">
+        <button class="nav-btn" id="prev-month"><i class="fas fa-chevron-left"></i></button>
+        <div class="month-display" id="month-display">Februari 2025</div>
+        <button class="nav-btn" id="next-month"><i class="fas fa-chevron-right"></i></button>
+    </div>
+    
+    <div class="calendar" id="calendar">
+        <!-- Calendar content will be dynamically generated here -->
+    </div>
+    
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-missing-feed"></div>
+            <span><span style="color: var(--weekend-color);">⚠ Fodring</span></span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-icon"><i class="fas fa-broom" style="color: var(--blue-color);"></i></div>
+            <span>Städvecka</span>
+        </div>
+        <div class="legend-item">
+            <div class="red-border"></div>
+            <span>IB Bortrest</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-icon"><i class="fas fa-suitcase" style="color: var(--orange-color);"></i></div>
+            <span>Mats Bortrest</span>
+        </div>
+        <div class="legend-item" style="border: 2px solid var(--primary-color); padding: 2px 8px; margin-left: auto; border-radius: 4px; display: none;">
+            <span>Idag</span>
+        </div>
+    </div>
+    
+    <div class="data-controls">
+        <button id="print-btn" class="nav-btn" title="Skriv ut schema"><i class="fas fa-print"></i></button>
+    </div>
+    
+    <div id="success-message" class="success-message"></div>
+    
+    <div class="session-notice">
+        <i class="fas fa-info-circle"></i>
+        Schemaläggningen sparas automatiskt i din webbläsare.
+    </div>
+
+    <div class="legend-item today-indicator">
+        <div class="today-circle-example">25</div>
+        <span>Idag</span>
+    </div>
+    
+    <!-- Modal för Dagstatus -->
+    <div class="modal" id="day-status-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Uppdatera Dagstatus</h2>              
+                <span class="close" id="close-day-status-modal">&times;</span>
+            </div>
+            <span id="selected-day-status-date" class="selected-date"></span>
+            
+            <form id="day-status-form">
+                <div style="margin-top: 20px;">
+                    <div class="marker-container">
+                        <input type="checkbox" id="ib-away">
+                        <div class="marker-label">
+                            <div class="marker-icon-wrapper">
+                                <span style="border: 1px solid var(--weekend-color); width: 14px; height: 14px; display: block; border-radius: 50%;"></span>
+                                <label for="ib-away" style="margin: 0;">IB Bortrest</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="marker-container">
+                        <input type="checkbox" id="cleaning-week">
+                        <div class="marker-label">
+                            <div class="marker-icon-wrapper">
+                                <i class="fas fa-broom" style="color: var(--blue-color);"></i>
+                                <label for="cleaning-week" style="margin: 0;">Städvecka</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="marker-container">
+                        <input type="checkbox" id="mats-away">
+                        <div class="marker-label">
+                            <div class="marker-icon-wrapper">
+                                <i class="fas fa-suitcase" style="color: var(--orange-color);"></i>
+                                <label for="mats-away" style="margin: 0;">Mats Bortrest</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; display: flex; justify-content: flex-end; gap: 12px;">
+                    <button type="button" class="button-secondary" id="cancel-day-status">Avbryt</button>
+                    <button type="submit">Spara</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal för Skift och Fodring -->
+    <div class="modal" id="shift-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Lägg in pass</h2>              
+                <span class="close" id="close-shift-modal">&times;</span>
+            </div>
+            <div class="modal-nav">
+                <button class="nav-btn" id="prev-day-shift"><i class="fas fa-chevron-left"></i></button>
+                <span id="selected-shift-date" class="selected-date"></span>
+                <button class="nav-btn" id="next-day-shift"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            
+            <form id="shift-form">
+                <div>
+                    <label for="shift-type">Vilket pass:</label>
+                    <select id="shift-type">
+                        <option value="morning">Morgon</option>
+                        <option value="lunch">Lunch</option>
+                        <option value="evening">Kväll</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="shift-name">Vem tar passet:</label>
+                    <input type="text" id="shift-name" placeholder="Skriv namn...">
+                </div>
+                
+                <div class="marker-container">
+                    <input type="checkbox" id="missing-feed">
+                    <div class="marker-label">
+                        <div class="marker-icon-wrapper">
+                            <div style="width: 14px; height: 14px; background-color: rgba(244, 67, 54, 0.05); border-left: 2px solid var(--weekend-color); display: inline-block; margin: 0;"></div>
+                            <label for="missing-feed" style="margin: 0;"><span style="color: var(--weekend-color); display: flex; align-items: center;">⚠ Fodring</span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; display: flex; justify-content: flex-end; gap: 12px;">
+                    <button type="button" class="button-secondary" id="cancel-shift">Avbryt</button>
+                    <button type="submit">Spara</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js';
+    
+        const SUPABASE_URL = 'https://zwxxkwyligvfmjyjyhpo.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3eHhrd3lsaWd2Zm1qeWp5aHBvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzOTM4MjUsImV4cCI6MjA1NTk2OTgyNX0.u26VSdqAFalasO6OGVFiAtubxBEpEYkJA2lSQt_FIcw';
+    
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+        // DOM elements
+        const calendar = document.getElementById('calendar');
+        const monthDisplay = document.getElementById('month-display');
+        const prevMonthBtn = document.getElementById('prev-month');
+        const nextMonthBtn = document.getElementById('next-month');
+        const dayStatusModal = document.getElementById('day-status-modal');
+        const shiftModal = document.getElementById('shift-modal');
+        const dayStatusForm = document.getElementById('day-status-form');
+        const shiftForm = document.getElementById('shift-form');
+        const importFile = document.getElementById('import-file');
+        const successMessage = document.getElementById('success-message');
+        const cancelDayStatus = document.getElementById('cancel-day-status');
+        const cancelShift = document.getElementById('cancel-shift');
+        const printBtn = document.getElementById('print-btn');
+        const prevDayShiftBtn = document.getElementById('prev-day-shift');
+        const nextDayShiftBtn = document.getElementById('next-day-shift');
+    
+        // Translations
+        const dayNames = ['Mån', 'Tis', 'Ons', 'Tors', 'Fre', 'Lör', 'Sön'];
+        const monthNames = ['Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni', 
+                           'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December'];
+        const shiftNames = {
+            'morning': 'Morgon',
+            'lunch': 'Lunch',
+            'evening': 'Kväll'
+        };
+        
+        // Special days data (could be expanded)
+        const specialDays = {
+            '2024-03-29': 'Långfredagen',
+            '2024-03-31': 'Påskdagen'
+        };
+        
+        // Current date tracking
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+        
+        // Schedule data containers
+        let scheduleData = {};
+        let specialEvents = {};
+        
+        // Selected date for the modal
+        let selectedDateStr = '';
+
+        
+    
+        // Open Day Status Modal (three dots)
+        function openDayStatusModal(date) {
+            document.getElementById("selected-day-status-date").textContent = formatDisplayDate(date);
+            dayStatusModal.dataset.date = date;
+            dayStatusModal.style.display = "block";
+            fetchDayStatus(date);
+        }
+    
+        function openShiftModal(date, shiftType = "morning") {
+            selectedDateStr = date;
+            document.getElementById("selected-shift-date").textContent = formatDisplayDate(date);
+            document.getElementById("shift-modal").dataset.date = date;
+            
+            // Validera shift type
+            const validShiftTypes = ["morning", "lunch", "evening"];
+            if (validShiftTypes.includes(shiftType)) {
+                document.getElementById("shift-type").value = shiftType;
+            } else {
+                // Sätt default till morgon om ogiltig
+                document.getElementById("shift-type").value = "morning";
+                console.warn("Korrigerade ogiltig shift type:", shiftType);
+            }
+
+            // Rensa fälten först
+            document.getElementById("shift-name").value = "";
+            document.getElementById("missing-feed").checked = false;
+
+            // Hämta befintliga skift för att fylla i om det redan finns något sparat
+            fetchShifts(date);
+
+            document.getElementById("shift-modal").style.display = "block";
+        }
+
+        // Format date for display (e.g., "25 februari 2025")
+        function formatDisplayDate(dateStr) {
+            const [year, month, day] = dateStr.split('-');
+            const monthName = monthNames[parseInt(month) - 1];
+            return `${parseInt(day)} ${monthName} ${year}`;
+        }
+    
+        // Close modals
+        document.getElementById("close-day-status-modal").addEventListener("click", () => {
+            dayStatusModal.style.display = "none";
+        });
+        
+        document.getElementById("close-shift-modal").addEventListener("click", () => {
+            shiftModal.style.display = "none";
+        });
+        
+        cancelDayStatus.addEventListener("click", () => {
+            dayStatusModal.style.display = "none";
+        });
+        
+        cancelShift.addEventListener("click", () => {
+            shiftModal.style.display = "none";
+        });
+
+        // Day navigation in shift modal
+        prevDayShiftBtn.addEventListener("click", () => {
+            navigateShiftDay(-1);
+        });
+
+        nextDayShiftBtn.addEventListener("click", () => {
+            navigateShiftDay(1);
+        });
+
+        function navigateShiftDay(offset) {
+            const currentDate = new Date(selectedDateStr);
+            currentDate.setDate(currentDate.getDate() + offset);
+            const newDateStr = formatDateStr(
+                currentDate.getFullYear(),
+                currentDate.getMonth(),
+                currentDate.getDate()
+            );
+            
+            // Save current form data if needed
+            const shiftType = document.getElementById("shift-type").value;
+            
+            // Update modal with new date
+            selectedDateStr = newDateStr;
+            openShiftModal(newDateStr, shiftType);
+        }
+    
+        // Get day status from Supabase
+        async function fetchDayStatus(date) {
+            const { data, error } = await supabase
+                .from('schedule_day_status')
+                .select('*')
+                .eq('date', date);
+    
+            if (error) {
+                console.error("Error fetching day status:", error);
+                return;
+            }
+    
+            const dayStatus = data.length > 0 ? data[0] : null;
+            document.getElementById("ib-away").checked = dayStatus?.ib_away || false;
+            document.getElementById("cleaning-week").checked = dayStatus?.cleaning_week || false;
+            document.getElementById("mats-away").checked = dayStatus?.mats_away || false;
+        }
+
+        async function fetchShifts(date) {
+            const { data, error } = await supabase
+                .from('schedule_shifts')
+                .select('*')
+                .eq('date', date);
+
+            if (error) {
+                console.error("Error fetching shifts:", error);
+                return;
+            }
+
+            // Reset fields when modal opens
+            document.getElementById("shift-name").value = "";
+            document.getElementById("missing-feed").checked = false;
+
+            // Hämta valt skift från dropdown
+            let shiftDropdown = document.getElementById("shift-type");
+            let shiftType = shiftDropdown.value;
+            let shift = data.find(s => s.shift === shiftType);
+
+            if (shift) {
+                document.getElementById("shift-name").value = shift.name || "";
+                document.getElementById("missing-feed").checked = shift.missing_feed || false;
+            }
+
+            // Lägg till event listener på dropdown
+            shiftDropdown.onchange = function () {
+                let newShiftType = this.value;
+                let newShift = data.find(s => s.shift === newShiftType);
+
+                if (newShift) {
+                    document.getElementById("shift-name").value = newShift.name || "";
+                    document.getElementById("missing-feed").checked = newShift.missing_feed || false;
+                } else {
+                    document.getElementById("shift-name").value = "";
+                    document.getElementById("missing-feed").checked = false;
+                }
+            };
+        }
+
+        // Daystate form handler
+        dayStatusForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const date = dayStatusModal.dataset.date;
+            const ibAway = document.getElementById("ib-away").checked;
+            const cleaningWeek = document.getElementById("cleaning-week").checked;
+            const matsAway = document.getElementById("mats-away").checked;
+
+            const { error } = await supabase
+                .from('schedule_day_status')
+                .upsert([{ 
+                    date, 
+                    ib_away: ibAway, 
+                    cleaning_week: cleaningWeek, 
+                    mats_away: matsAway 
+                }], { onConflict: ['date'] });
+
+            if (error) {
+                console.error("Error saving day status:", error);
+                showSuccessMessage('Fel vid sparande: ' + error.message, 'error');
+            } else {
+                dayStatusModal.style.display = "none";
+                fetchSchedule();
+                showSuccessMessage('Status sparad');
+            }
+        });
+
+    
+        // Save Shift utan onConflict
+        shiftForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const date = shiftModal.dataset.date;
+            const name = document.getElementById("shift-name").value.trim();
+            const missingFeed = document.getElementById("missing-feed").checked;
+            const shiftType = document.getElementById("shift-type").value;
+
+            // Validera shift type
+            if (!["morning", "lunch", "evening"].includes(shiftType)) {
+                console.error("Invalid shift type:", shiftType);
+                showSuccessMessage('Fel: Ogiltigt skifttyp', 'error');
+                return;
+            }
+
+            try {
+                // Kontrollera först om det finns en befintlig post
+                const { data: existingData, error: fetchError } = await supabase
+                    .from('schedule_shifts')
+                    .select('id')
+                    .eq('date', date)
+                    .eq('shift', shiftType);
+
+                if (fetchError) {
+                    console.error("Error checking existing shift:", fetchError);
+                    showSuccessMessage('Fel vid kontroll av befintligt pass', 'error');
+                    return;
+                }
+
+                let result;
+                
+                if (existingData && existingData.length > 0) {
+                    // Om posten finns, uppdatera den
+                    const id = existingData[0].id;
+                    result = await supabase
+                        .from('schedule_shifts')
+                        .update({ 
+                            name, 
+                            missing_feed: missingFeed 
+                        })
+                        .eq('id', id);
+                } else {
+                    // Om posten inte finns, skapa en ny
+                    result = await supabase
+                        .from('schedule_shifts')
+                        .insert([{ 
+                            date, 
+                            shift: shiftType, 
+                            name, 
+                            missing_feed: missingFeed 
+                        }]);
+                }
+
+                if (result.error) {
+                    console.error("Error saving shift:", result.error);
+                    showSuccessMessage('Fel vid sparande: ' + result.error.message, 'error');
+                } else {
+                    shiftModal.style.display = "none";
+                    fetchSchedule();
+                    showSuccessMessage('Pass sparat');
+                }
+            } catch (e) {
+                console.error("Exception saving shift:", e);
+                showSuccessMessage('Ett fel uppstod', 'error');
+            }
+        });
+    
+        // Main function to fetch and render the schedule
+        async function fetchSchedule() {
+            // Show loading indicator
+            showSuccessMessage('Laddar schema...', 'loading');
+            
+            // Fetch day status
+            const { data: dayStatus, error: dayStatusError } = await supabase
+                .from('schedule_day_status')
+                .select('*');
+    
+            if (dayStatusError) {
+                console.error("Error fetching day status:", dayStatusError);
+                showSuccessMessage('Fel vid hämtning av dagstatus', 'error');
+                return;
+            }
+    
+            // Fetch shifts
+            const { data: shifts, error: shiftsError } = await supabase
+                .from('schedule_shifts')
+                .select('*');
+    
+            if (shiftsError) {
+                console.error("Error fetching shifts:", shiftsError);
+                showSuccessMessage('Fel vid hämtning av pass', 'error');
+                return;
+            }
+    
+            // Reset schedule data
+            scheduleData = {};
+            specialEvents = {};
+    
+            // Process day status data
+            dayStatus.forEach(day => {
+                const { date, ib_away, cleaning_week, mats_away } = day;
+                specialEvents[date] = { 
+                    cleaningWeek: cleaning_week, 
+                    ibAway: ib_away, 
+                    matsAway: mats_away, 
+                    missingFeed: [] 
+                };
+            });
+    
+            // Process shift data
+            shifts.forEach(shift => {
+                const { date, shift: shiftType, name, missing_feed } = shift;
+    
+                if (!scheduleData[date]) {
+                    scheduleData[date] = {};
+                }
+                
+                scheduleData[date][shiftType] = name || "Ej tilldelat";
+    
+                if (missing_feed) {
+                    if (!specialEvents[date]) {
+                        specialEvents[date] = { cleaningWeek: false, ibAway: false, matsAway: false, missingFeed: [] };
+                    }
+                    specialEvents[date].missingFeed.push(shiftType);
+                }
+            });
+    
+            // Render the calendar with updated data
+            renderCalendar(currentMonth, currentYear);
+            
+            // Hide loading indicator
+            successMessage.style.display = 'none';
+        }
+    
+        // Initialize calendar
+        function initCalendar() {
+            // Add day headers
+            dayNames.forEach((day, index) => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                if (index >= 5) { // Lördag och söndag är helg i Sverige
+                    dayHeader.classList.add('weekend');
+                }
+                dayHeader.textContent = day;
+                calendar.appendChild(dayHeader);
+            });
+            
+            // Render the calendar
+            renderCalendar(currentMonth, currentYear);
+        }
+        
+        function renderCalendar(month, year) {
+            // Update month display
+            monthDisplay.textContent = `${monthNames[month]} ${year}`;
+            
+            // Clear existing date cells
+            const headers = document.querySelectorAll('.day-header');
+            calendar.innerHTML = '';
+            
+            // Add back day headers
+            headers.forEach(header => {
+                calendar.appendChild(header.cloneNode(true));
+            });
+            
+            // Get first day of month and days in month
+            const firstDay = new Date(year, month, 1).getDay(); // 0 is Sunday, 1 is Monday, etc.
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            // Adjust first day for Monday start (0 = Monday, 6 = Sunday)
+            const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
+    
+            // Add cells for previous month days
+            const prevMonthDays = new Date(year, month, 0).getDate();
+            for (let i = 0; i < adjustedFirstDay; i++) {
+                const day = prevMonthDays - adjustedFirstDay + i + 1;
+                const prevMonth = month === 0 ? 11 : month - 1;
+                const prevYear = month === 0 ? year - 1 : year;
+                const dateStr = formatDateStr(prevYear, prevMonth, day);
+                
+                const dayCell = createDayCell(day, dateStr, 'inactive');
+                calendar.appendChild(dayCell);
+            }
+            
+            // Get current week row to scroll to
+            let currentWeekRowIndex = -1;
+            const today = new Date();
+            
+            // Add cells for current month days
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dateStr = formatDateStr(year, month, i);
+                const isToday = i === today.getDate() && 
+                                month === today.getMonth() && 
+                                year === today.getFullYear();
+                
+                // Mark the current week row
+                if (isToday) {
+                    const rowIndex = Math.floor((adjustedFirstDay + i - 1) / 7);
+                    currentWeekRowIndex = rowIndex;
+                }
+                
+                const dayCell = createDayCell(i, dateStr, isToday ? 'today' : '');
+                calendar.appendChild(dayCell);
+                
+                // Add week number to the first day of each week
+                if ((adjustedFirstDay + i - 1) % 7 === 0) {
+                    const weekDate = new Date(year, month, i);
+                    const weekNumber = getWeekNumber(weekDate);
+                    
+                    const weekNumberElement = document.createElement('div');
+                    weekNumberElement.className = 'week-number';
+                    weekNumberElement.textContent = weekNumber;
+                    
+                    // Add it to the first day cell of the week
+                    dayCell.style.position = 'relative';
+                    dayCell.appendChild(weekNumberElement);
+                }
+            }
+            
+            // Add cells for next month days if needed to fill grid
+            const totalCells = Math.ceil((adjustedFirstDay + daysInMonth) / 7) * 7;
+            const nextMonthDays = totalCells - (adjustedFirstDay + daysInMonth);
+            
+            for (let i = 1; i <= nextMonthDays; i++) {
+                const nextMonth = month === 11 ? 0 : month + 1;
+                const nextYear = month === 11 ? year + 1 : year;
+                const dateStr = formatDateStr(nextYear, nextMonth, i);
+                
+                const dayCell = createDayCell(i, dateStr, 'inactive');
+                calendar.appendChild(dayCell);
+            }
+            
+            // Scroll to current week if we're in the current month
+            if (currentWeekRowIndex >= 0) {
+                const rows = calendar.querySelectorAll(':scope > div:not(.day-header)');
+                const weekRows = [];
+                let currentRow = [];
+                
+                // Group cells into rows
+                rows.forEach((cell, index) => {
+                    currentRow.push(cell);
+                    if ((index + 1) % 7 === 0) {
+                        weekRows.push(currentRow);
+                        currentRow = [];
+                    }
+                });
+                
+                // Scroll to the current week
+                if (weekRows[currentWeekRowIndex] && weekRows[currentWeekRowIndex][0]) {
+                    setTimeout(() => {
+                        weekRows[currentWeekRowIndex][0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                }
+            }
+        }
+        
+        function createDayCell(day, dateStr, extraClass = '') {
+            const cell = document.createElement('div');
+            cell.className = 'date-cell ' + extraClass;
+            cell.classList.add('day'); // Add day class for click event
+            cell.setAttribute('data-date', dateStr);
+            
+            // Create top row with date and options
+            const topRow = document.createElement('div');
+            topRow.style.display = 'flex';
+            topRow.style.justifyContent = 'space-between';
+            topRow.style.alignItems = 'center';
+            
+            // Add date number
+            const dateNumber = document.createElement('div');
+            dateNumber.className = 'date-number';
+            
+            // Make weekends red
+            const date = new Date(dateStr);
+            const dayOfWeek = date.getDay();
+            if (dayOfWeek === 0 || dayOfWeek === 6) { // 0 is Sunday, 6 is Saturday
+                dateNumber.classList.add('weekend-date');
+            }
+            
+            // Make today's date a circle
+            if (extraClass.includes('today')) {
+                dateNumber.classList.add('today-circle');
+            }
+            
+            dateNumber.textContent = day;
+            topRow.appendChild(dateNumber);
+            
+            // Add options button (three dots)
+            const options = document.createElement('span');
+            options.className = 'options';
+            options.innerHTML = '<i class="fas fa-ellipsis-h"></i>';
+            options.onclick = (e) => {
+                e.stopPropagation();
+                openDayStatusModal(dateStr);
+            };
+            topRow.appendChild(options);
+            
+            cell.appendChild(topRow);
+            
+            // Add events container
+            const events = document.createElement('div');
+            events.className = 'events';
+            
+            // Add shifts
+            const shifts = ["morning", "lunch", "evening"];
+            const shiftIcons = {
+                "morning": '<i class="far fa-sun" style="width: 16px;"></i>',
+                "lunch": '<i class="far fa-clock" style="width: 16px;"></i>',
+                "evening": '<i class="far fa-moon" style="width: 16px;"></i>'
+            };
+            
+            shifts.forEach(shift => {
+                const event = document.createElement('div');
+                event.className = `event event-${shift}`;
+                event.setAttribute('data-shift-type', shift);
+                
+                if (scheduleData[dateStr] && scheduleData[dateStr][shift]) {
+                    event.innerHTML = `${shiftIcons[shift]} <span class="person-name">${scheduleData[dateStr][shift]}</span>`;
+                } else {
+                    event.innerHTML = `${shiftIcons[shift]} <span class="empty-event">${shiftNames[shift]}</span>`;
+                }
+                
+                // Style the event if feeding is missing
+                if (specialEvents[dateStr]?.missingFeed?.includes(shift)) {
+                    event.classList.add("missing-feed");
+                    
+                    // If it's an empty slot, update text for missing feed
+                    if (!scheduleData[dateStr] || !scheduleData[dateStr][shift]) {
+                        event.innerHTML = `${shiftIcons[shift]} <span style="display: flex; align-items: center; justify-content: flex-end;"><span class="missing-feed-text">⚠ Fodring</span><span class="empty-event" style="margin-left: 6px;">Ej tilldelat</span></span>`;
+                    } else {
+                        // Add indicator text inline with name
+                        const nameElement = event.querySelector('.person-name');
+                        const nameParent = nameElement.parentNode;
+                        nameParent.style.display = 'flex';
+                        nameParent.style.alignItems = 'center';
+                        nameParent.style.justifyContent = 'flex-end';
+                        nameParent.innerHTML = `<span class="missing-feed-text">⚠ Fodring</span><span class="person-name" style="margin-left: 6px;">${scheduleData[dateStr][shift]}</span>`;
+                    }
+                }
+                
+                // Lägg till klick-hantering för varje pass
+                event.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (!cell.classList.contains('inactive')) {
+                        openShiftModal(dateStr, shift);
+                    }
+                });
+                
+                events.appendChild(event);
+            });
+            
+            cell.appendChild(events);
+            
+            // Add markers for special events
+            if (specialEvents[dateStr]) {
+                // Cleaning week icon
+                if (specialEvents[dateStr].cleaningWeek) {
+                    const cleaningIcon = document.createElement('div');
+                    cleaningIcon.className = "icon-marker cleaning-icon";
+                    cleaningIcon.innerHTML = '<i class="fas fa-broom"></i>';
+                    cell.appendChild(cleaningIcon);
+                }
+                
+                // IB away (red border)
+                if (specialEvents[dateStr].ibAway) {
+                    cell.style.border = "1px solid var(--weekend-color)";
+                }
+                
+                // Mats away icon
+                if (specialEvents[dateStr].matsAway) {
+                    const matsIcon = document.createElement('div');
+                    matsIcon.className = "icon-marker mats-icon";
+                    matsIcon.innerHTML = '<i class="fas fa-suitcase"></i>';
+                    cell.appendChild(matsIcon);
+                }
+            }
+            
+            // Add special day text if applicable
+            if (specialDays[dateStr]) {
+                const specialDay = document.createElement('div');
+                specialDay.className = 'special-day';
+                specialDay.textContent = specialDays[dateStr];
+                cell.appendChild(specialDay);
+            }
+            
+            // Add "Idag" text if it's today
+            if (extraClass.includes('today')) {
+                const todayIndicator = document.createElement('div');
+                todayIndicator.className = 'today-indicator';
+                todayIndicator.textContent = 'Idag';
+                cell.appendChild(todayIndicator);
+            }
+            
+            // Add click handler to open shift modal
+            cell.addEventListener('click', () => {
+                if (!cell.classList.contains('inactive')) {
+                    openShiftModal(dateStr);
+                }
+            });
+            
+            return cell;
+        }
+        
+        // Format date as YYYY-MM-DD
+        function formatDateStr(year, month, day) {
+            return `${year}-${String(month+1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        }
+        
+        // Get week number for a date
+        function getWeekNumber(d) {
+            // Copy date so don't modify original
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            // Set to nearest Thursday: current date + 4 - current day number
+            // Make Sunday's day number 7
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+            // Get first day of year
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            // Calculate full weeks to nearest Thursday
+            const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            // Return week number
+            return weekNo;
+        }
+        
+        // Print function
+        function printSchedule() {
+            window.print();
+        }
+        
+        
+        // Show success message
+        function showSuccessMessage(message, type = 'success') {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            
+            if (type === 'error') {
+                successMessage.style.color = '#f44336';
+            } else if (type === 'loading') {
+                successMessage.style.color = '#2196f3';
+            } else {
+                successMessage.style.color = '#212121';
+            }
+            
+            if (type !== 'loading') {
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 2000);
+            }
+        }
+        
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === dayStatusModal) {
+                dayStatusModal.style.display = 'none';
+            }
+            if (e.target === shiftModal) {
+                shiftModal.style.display = 'none';
+            }
+        });
+        
+        // Navigation event listeners
+        prevMonthBtn.addEventListener('click', () => {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar(currentMonth, currentYear);
+        });
+        
+        nextMonthBtn.addEventListener('click', () => {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar(currentMonth, currentYear);
+        });
+        
+        // Print button event listener
+        printBtn.addEventListener('click', printSchedule);
+        
+        // Initialize the calendar when the page loads
+        document.addEventListener("DOMContentLoaded", () => {
+            initCalendar();
+            fetchSchedule();
+            
+            // Set current month by default (already showing current week)
+            currentMonth = currentDate.getMonth();
+            currentYear = currentDate.getFullYear();
+            renderCalendar(currentMonth, currentYear);
+
+            // Update the today-circle-example with current date
+            const todayCircleExample = document.querySelector('.today-circle-example');
+            if (todayCircleExample) {
+                todayCircleExample.textContent = currentDate.getDate();
+            }
+        });
+    </script>
+</body>
+</html>
