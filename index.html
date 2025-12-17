@@ -51,7 +51,7 @@
     
     <div class="data-controls">
         <button id="print-btn" class="nav-btn" title="Skriv ut schema"><i class="fas fa-print"></i></button>
-        <button id="manage-horses-btn" class="button-secondary compact" style="display:none;">Hantera hästar</button>
+        <button id="manage-horses-btn" class="button-secondary compact manage-horses hidden">Lägg till / hantera hästar</button>
     </div>
     
     <div id="success-message" class="success-message"></div>
@@ -392,12 +392,12 @@
             if (mode === 'ride') {
                 tabRide.classList.add('active');
                 tabStable.classList.remove('active');
-                manageHorsesBtn.style.display = 'inline-flex';
+                manageHorsesBtn.classList.remove('hidden');
                 fetchRideData();
             } else {
                 tabStable.classList.add('active');
                 tabRide.classList.remove('active');
-                manageHorsesBtn.style.display = 'none';
+                manageHorsesBtn.classList.add('hidden');
                 fetchSchedule();
             }
             renderCalendar(currentMonth, currentYear);

@@ -134,6 +134,15 @@
             color: #fff;
             border-color: var(--primary-color);
         }
+
+        .manage-horses {
+            margin-left: 10px;
+            align-self: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
         
         .month-display {
             font-size: 1.2em;
