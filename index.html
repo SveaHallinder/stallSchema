@@ -5,836 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stall Schema</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .today-indicator {
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
-            background-color: var(--primary-color);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 20px;
-            font-size: 0.75em;
-            font-weight: 500;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }        
-        
-        .legend-item.today-indicator {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 15px 23px;
-            border-radius: 300px;
-            color: white;
-            flex-direction: column;
-            justify-content: center;
-            background-color: var(--primary-color);
-            z-index: 100;
-        }
-        
-        .today-circle-example {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.3em;
-            font-weight: 500;
-        }
-
-        #print-btn {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            align-items: center;
-            justify-content: center;
-            background-color: black;
-            color: white;
-            padding: 30px;
-        }
-        
-        :root {
-            --primary-color: #212121;
-            --primary-light: #f5f5f5;
-            --accent-color: #757575;
-            --text-color: #333333;
-            --border-color: #eeeeee;
-            --inactive-bg: #f9f9f9;
-            --active-bg: #ffffff;
-            --weekend-color: #f44336;
-            --blue-color: #2196f3;
-            --orange-color: #ff9800;
-            --green-color: #4caf50;
-            --border-radius: 8px;
-            --box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            --transition: all 0.2s ease;
-        }
-        
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            color: var(--text-color);
-            line-height: 1.5;
-        }
-        
-        .app-header {
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        h1 {
-            font-weight: 300;
-            font-size: 2em;
-            margin-bottom: 5px;
-            color: var(--primary-color);
-            letter-spacing: -0.5px;
-        }
-        
-        .month-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .month-display {
-            font-size: 1.2em;
-            font-weight: 400;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .nav-btn {
-            background: transparent;
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: var(--primary-color);
-            transition: var(--transition);
-        }
-        
-        .nav-btn:hover {
-            background: var(--primary-light);
-        }
-        
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-            color: var(--text-color);
-            margin-bottom: 30px;
-        }
-        
-        .day-header {
-            text-align: center;
-            padding: 8px 0;
-            font-size: 0.85em;
-            font-weight: 500;
-            color: var(--accent-color);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-        }
-        
-        .weekend {
-            color: var(--weekend-color);
-        }
-
-        .date-cell {
-            background: var(--active-bg);
-            min-height: 110px;
-            border-radius: var(--border-radius);
-            padding: 10px;
-            position: relative;
-            box-shadow: var(--box-shadow);
-            transition: var(--transition);
-            border: 1px solid var(--border-color);
-        }
-        
-        .date-cell:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        
-        .date-number {
-            font-size: 0.9em;
-            font-weight: 400;
-            color: var(--accent-color);
-        }
-        
-        .weekend-date {
-            color: var(--weekend-color);
-        }
-        
-        .inactive {
-            background: var(--inactive-bg);
-            color: #bbb;
-            box-shadow: none;
-        }
-        
-        .inactive:hover {
-            box-shadow: none;
-        }
-        
-        .today {
-            position: relative;
-        }
-        
-        .date-number.today-circle {
-            background-color: var(--primary-color);
-            color: white;
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: -3px;
-            margin-left: -3px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-        
-        .today::after {
-            position: absolute;
-            bottom: 5px;
-            right: 8px;
-            font-size: 0.7em;
-            color: var(--primary-color);
-            background-color: rgba(33, 33, 33, 0.05);
-            padding: 2px 5px;
-            border-radius: 3px;
-        }
-        
-        .events {
-            margin-top: 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        
-        .event {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 4px;
-            transition: var(--transition);
-            font-size: 0.9em;
-            border-left: 2px solid transparent;
-        }
-        
-        .event:hover {
-            background: var(--primary-light);
-        }
-        
-        .event-morning i {
-            color: #ff9800;
-        }
-        
-        .event-lunch i {
-            color: #2196f3;
-        }
-        
-        .event-evening i {
-            color: #673ab7;
-        }
-        
-        .event.missing-feed {
-            background-color: rgba(244, 67, 54, 0.05);
-            border-left: 2px solid var(--weekend-color);
-        }
-        
-        .event.missing-feed:hover {
-            background-color: rgba(244, 67, 54, 0.1);
-        }
-        
-        .missing-feed-text {
-            color: var(--weekend-color);
-            margin-left: 5px;
-            font-size: 0.9em;
-        }
-        
-        .empty-event {
-            color: #bbb;
-            font-weight: 300;
-        }
-        
-        .person-name {
-            font-weight: 400;
-            text-align: end;
-        }
-        
-        .legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            padding: 15px 0;
-            border-top: 1px solid var(--border-color);
-            margin-bottom: 20px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            font-size: 0.85em;
-            color: var(--accent-color);
-        }
-        
-        .legend-color {
-            width: 10px;
-            height: 10px;
-            margin-right: 8px;
-            border-radius: 50%;
-        }
-        
-        .legend-icon {
-            width: 16px;
-            height: 16px;
-            margin-right: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1em;
-        }
-        
-        .legend-missing-feed {
-            width: 14px;
-            height: 14px;
-            margin-right: 8px;
-            background-color: rgba(244, 67, 54, 0.05);
-            border-left: 2px solid var(--weekend-color);
-            display: inline-block;
-        }
-        
-        .red-border {
-            border: 1px solid var(--weekend-color);
-            width: 10px;
-            height: 10px;
-            margin-right: 8px;
-            border-radius: 50%;
-        }
-        
-        .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            position: absolute;
-        }
-
-        .icon-marker {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9em;
-        }
-
-        .cleaning-icon {
-            color: var(--blue-color);
-            right: 40px;
-            top: 10px;
-        }
-
-        .mats-icon {
-            color: var(--orange-color);
-            right: 15px;
-            top: 10px;
-        }
-
-        .week-number {
-            position: absolute;
-            left: -30px;
-            font-size: 0.7em;
-            color: var(--accent-color);
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: var(--primary-light);
-        }
-
-        .options {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            cursor: pointer;
-            color: var(--accent-color);
-            transition: var(--transition);
-            font-size: 0.8em;
-        }
-        
-        .options:hover {
-            background-color: var(--primary-light);
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            z-index: 1000;
-            backdrop-filter: blur(4px);
-        }
-        
-        .modal-content {
-            background: white;
-            margin: 10% auto;
-            padding: 30px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-        
-        .modal-header h2 {
-            font-size: 1.4em;
-            font-weight: 500;
-            color: var(--primary-color);
-        }
-
-        .modal-nav {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-        
-        .selected-date {
-            display: inline-block;
-            background-color: var(--primary-light);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: 500;
-            margin-bottom: 20px;
-            color: var(--primary-color);
-        }
-
-        .marker-container {
-            display: flex;
-            align-items: center;
-            background-color: #f9f9f9;
-            padding: 14px;
-            border-radius: 10px;
-            margin: 10px 0;
-            transition: var(--transition);
-        }
-        
-        .marker-container:hover {
-            background-color: #f0f0f0;
-        }
-        
-        .marker-icon-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-left: 10px;
-            margin-bottom: 0;
-        }
-
-        .marker-label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 1;
-            margin-bottom: 0;
-        }
-        
-        .marker-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 20px;
-            height: 20px;
-        }
- 
-        .close {
-            cursor: pointer;
-            font-size: 1.2em;
-            color: var(--accent-color);
-            transition: var(--transition);
-        }
-        
-        .close:hover {
-            color: var(--primary-color);
-        }
-        
-        form div {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            font-size: 0.9em;
-            color: #333;
-        }
-        
-        input[type="text"], select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1em;
-            transition: var(--transition);
-            background-color: #f9f9f9;
-        }
-        
-        select {
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            background-size: 1em;
-            padding-right: 40px;
-        }
-        
-        input[type="text"]:focus, select:focus {
-            border-color: var(--primary-color);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(33, 33, 33, 0.1);
-            background-color: white;
-        }
-
-        input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        
-        button {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.95em;
-            font-weight: 500;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        button:hover {
-            background: #424242;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        
-        .button-secondary {
-            background: #f2f2f2;
-            color: #666;
-        }
-        
-        .button-secondary:hover {
-            background: #e0e0e0;
-        }
-        
-        .notes {
-            font-size: 0.8em;
-            margin-top: 10px;
-            color: #999;
-        }
-
-        .session-notice {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 0.85em;
-            color: var(--accent-color);
-        }
-        
-        .data-controls {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-            gap: 10px;
-        }
-        
-        .success-message {
-            background-color: var(--primary-light);
-            color: var(--primary-color);
-            padding: 10px;
-            border-radius: 4px;
-            text-align: center;
-            margin: 15px 0;
-            display: none;
-            font-size: 0.9em;
-        }
-        
-        .file-input {
-            display: none;
-        }
-        
-        .special-day {
-            color: var(--green-color);
-            font-size: 0.75em;
-            position: absolute;
-            bottom: 6px;
-            left: 10px;
-        }
-
-        /* Print styles */
-        @media print {
-            body {
-                padding: 0;
-                font-size: 12px;
-            }
-            
-            .app-header button, 
-            .data-controls, 
-            .session-notice, 
-            .today-indicator,
-            .options {
-                display: none !important;
-            }
-            
-            .month-nav {
-                margin-bottom: 10px;
-            }
-            
-            .calendar {
-                page-break-inside: avoid;
-                gap: 2px;
-            }
-            
-            .date-cell {
-                min-height: 90px;
-                box-shadow: none;
-                border: 1px solid #ccc;
-            }
-            
-            .event {
-                padding: 2px 5px;
-            }
-            
-            .legend {
-                margin-top: 10px;
-            }
-        }
-        
-/* Förbättrad mobilanpassning för Stallschema */
-
-@media (max-width: 480px) {
-    body {
-        padding: 10px;
-        background: #f5f5f5;
-    }
-
-    .app-header {
-        margin-bottom: 15px;
-    }
-
-    h1 {
-        font-size: 1.6em;
-    }
-
-    .month-nav {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background: white;
-        margin: 0 -10px 15px -10px;
-        padding: 10px 15px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-
-    .month-display {
-        font-size: 1.1em;
-        font-weight: 500;
-    }
-
-    .calendar {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-bottom: 20px;
-    }
-
-    .day-header {
-        display: none;
-    }
-
-    .date-cell {
-        padding: 15px;
-        border-radius: 12px;
-        min-height: auto;
-    }
-
-    .date-number {
-        font-size: 0.9em;
-        position: absolute;
-        top: 15px;
-        right: 15px;
-    }
-
-    .date-number.today-circle {
-        top: 12px;
-        right: 12px;
-    }
-
-    .events {
-        margin-top: 30px;
-    }
-
-    .event {
-        font-size: 0.95em;
-        padding: 8px 5px;
-    }
-
-    .event i {
-        min-width: 20px;
-    }
-
-    .person-name {
-        word-break: break-word;
-        hyphens: auto;
-    }
-
-    .options {
-        top: 12px;
-        left: 12px;
-    }
-
-    .icon-marker {
-        font-size: 0.8em;
-    }
-
-    .cleaning-icon {
-        right: 30px;
-        top: 14px;
-    }
-
-    .mats-icon {
-        right: 10px;
-        top: 14px;
-    }
-
-    .week-number {
-        display: none;
-    }
-
-    .today-indicator {
-        display: none;
-    }
-
-    .legend-item.today-indicator {
-        display: none;
-    }
-
-    /* Modal improvement for mobile */
-    .modal-content {
-        margin: 5% auto;
-        width: 95%;
-        max-width: none;
-        padding: 20px;
-        border-radius: 12px;
-    }
-
-    .modal-header h2 {
-        font-size: 1.3em;
-    }
-
-    .marker-container {
-        padding: 12px;
-    }
-
-    button {
-        padding: 12px 16px;
-    }
-
-    /* Förbättra hur dagar med ikoner visas */
-    .special-day {
-        position: static;
-        margin-top: 5px;
-        margin-bottom: 10px;
-    }
-
-    /* Förbättra synligheten av ikoner och indikatorer */
-    .missing-feed-text {
-        font-size: 0.8em;
-    }
-
-    /* Lägg till lite svep-animation för feedbacken */
-    .date-cell:active {
-        transform: scale(0.98);
-        transition: transform 0.2s;
-    }
-
-    /* Lite mer plats mellan händelserna i listan */
-    .events {
-        gap: 10px;
-    }
-    
-    /* Fixa position för utskriftsknappen */
-    #print-btn {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 90;
-        background-color: white;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        padding: 20px;
-    }
-}
-
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="app-header">
         <h1>Stallschema</h1>
     </div>
-    
+
+    <div class="schema-toggle">
+        <button class="schema-tab active" id="tab-stable">Stallschema</button>
+        <button class="schema-tab" id="tab-ride">Ridschema</button>
+    </div>
+
+    <div class="legend">
+            <div class="legend-item">
+                <div class="legend-missing-feed"></div>
+                <span><span style="color: var(--weekend-color);">⚠ Fodring</span></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon"><i class="fas fa-broom" style="color: var(--blue-color);"></i></div>
+                <span>Städvecka</span>
+            </div>
+            <div class="legend-item">
+                <div class="red-border"></div>
+                <span>IB Bortrest</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-icon"><i class="fas fa-suitcase" style="color: var(--orange-color);"></i></div>
+                <span>Mats Bortrest</span>
+            </div>
+            <div class="legend-item" style="border: 2px solid var(--primary-color); padding: 2px 8px; margin-left: auto; border-radius: 4px; display: none;">
+                <span>Idag</span>
+            </div>
+        </div>
+
     <div class="month-nav">
         <button class="nav-btn" id="prev-month"><i class="fas fa-chevron-left"></i></button>
         <div class="month-display" id="month-display">Februari 2025</div>
@@ -845,30 +49,9 @@
         <!-- Calendar content will be dynamically generated here -->
     </div>
     
-    <div class="legend">
-        <div class="legend-item">
-            <div class="legend-missing-feed"></div>
-            <span><span style="color: var(--weekend-color);">⚠ Fodring</span></span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-icon"><i class="fas fa-broom" style="color: var(--blue-color);"></i></div>
-            <span>Städvecka</span>
-        </div>
-        <div class="legend-item">
-            <div class="red-border"></div>
-            <span>IB Bortrest</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-icon"><i class="fas fa-suitcase" style="color: var(--orange-color);"></i></div>
-            <span>Mats Bortrest</span>
-        </div>
-        <div class="legend-item" style="border: 2px solid var(--primary-color); padding: 2px 8px; margin-left: auto; border-radius: 4px; display: none;">
-            <span>Idag</span>
-        </div>
-    </div>
-    
     <div class="data-controls">
         <button id="print-btn" class="nav-btn" title="Skriv ut schema"><i class="fas fa-print"></i></button>
+        <button id="manage-horses-btn" class="button-secondary compact" style="display:none;">Hantera hästar</button>
     </div>
     
     <div id="success-message" class="success-message"></div>
@@ -878,10 +61,10 @@
         Schemaläggningen sparas automatiskt i din webbläsare.
     </div>
 
-    <div class="legend-item today-indicator">
-        <div class="today-circle-example">25</div>
+    <button class="floating-today-btn" id="scroll-to-today" aria-label="Hoppa till dagens datum">
+        <i class="fas fa-arrow-up"></i>
         <span>Idag</span>
-    </div>
+    </button>
     
     <!-- Modal för Dagstatus -->
     <div class="modal" id="day-status-modal">
@@ -979,11 +162,92 @@
         </div>
     </div>
 
+    <!-- Modal för Hästar och standardpass -->
+    <div class="modal" id="horse-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Hästar & standardpass</h2>              
+                <span class="close" id="close-horse-modal">&times;</span>
+            </div>
+            <div class="modal-section">
+                <h3>Lägg till häst</h3>
+                <div class="form-inline">
+                    <input type="text" id="horse-name-input" placeholder="Hästens namn">
+                    <button id="add-horse-btn">Spara häst</button>
+                </div>
+                <div id="horse-list" class="item-list"></div>
+            </div>
+            <div class="modal-section">
+                <h3>Standardpass</h3>
+                <div class="form-grid">
+                    <select id="default-horse-select"></select>
+                    <select id="default-day-select">
+                        <option value="1">Mån</option>
+                        <option value="2">Tis</option>
+                        <option value="3">Ons</option>
+                        <option value="4">Tors</option>
+                        <option value="5">Fre</option>
+                        <option value="6">Lör</option>
+                        <option value="0">Sön</option>
+                    </select>
+                    <select id="default-slot-select">
+                        <option value="morning">Morgon</option>
+                        <option value="evening">Kväll</option>
+                    </select>
+                    <input type="text" id="default-rider-input" placeholder="Ryttare">
+                    <button id="add-default-ride-btn">Lägg till/uppdatera</button>
+                </div>
+                <div id="default-ride-list" class="item-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal för ridpass/avvikelser -->
+    <div class="modal" id="ride-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Ridpass</h2>              
+                <span class="close" id="close-ride-modal">&times;</span>
+            </div>
+            <span id="selected-ride-date" class="selected-date"></span>
+
+            <form id="ride-form">
+                <div class="form-grid">
+                    <select id="ride-horse-select"></select>
+                    <select id="ride-slot-select">
+                        <option value="morning">Morgon</option>
+                        <option value="evening">Kväll</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="ride-rider-input">Vem rider?</label>
+                    <input type="text" id="ride-rider-input" placeholder="Ryttare">
+                </div>
+                <div class="marker-container">
+                    <input type="checkbox" id="ride-away-checkbox">
+                    <div class="marker-label">
+                        <div class="marker-icon-wrapper">
+                            <i class="fas fa-plane-departure" style="color: var(--weekend-color);"></i>
+                            <label for="ride-away-checkbox" style="margin: 0;">Bortrest / kommer inte</label>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 30px; display: flex; justify-content: space-between; gap: 12px;">
+                    <button type="button" class="button-secondary" id="delete-ride-override">Ta bort avvikelse</button>
+                    <div style="display:flex; gap:12px;">
+                        <button type="button" class="button-secondary" id="cancel-ride">Avbryt</button>
+                        <button type="submit">Spara</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script type="module">
         import { createClient } from 'https://esm.sh/@supabase/supabase-js';
     
-        const SUPABASE_URL = 'https://zwxxkwyligvfmjyjyhpo.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3eHhrd3lsaWd2Zm1qeWp5aHBvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzOTM4MjUsImV4cCI6MjA1NTk2OTgyNX0.u26VSdqAFalasO6OGVFiAtubxBEpEYkJA2lSQt_FIcw';
+        const SUPABASE_URL = 'https://ypiepkfvogxlupsuwnnq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlwaWVwa2Z2b2d4bHVwc3V3bm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyNTk3MzIsImV4cCI6MjA3OTgzNTczMn0.nd0UMqCE4CXZEg-Pn8sdQReI7EsRNdT_GGWmz4Tp34Y';
     
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
@@ -994,9 +258,36 @@
         const nextMonthBtn = document.getElementById('next-month');
         const dayStatusModal = document.getElementById('day-status-modal');
         const shiftModal = document.getElementById('shift-modal');
+        const horseModal = document.getElementById('horse-modal');
+        const rideModal = document.getElementById('ride-modal');
         const dayStatusForm = document.getElementById('day-status-form');
         const shiftForm = document.getElementById('shift-form');
         const importFile = document.getElementById('import-file');
+        const scrollToTodayBtn = document.getElementById('scroll-to-today');
+        const shiftNameInput = document.getElementById('shift-name');
+        const missingFeedCheckbox = document.getElementById('missing-feed');
+        const tabStable = document.getElementById('tab-stable');
+        const tabRide = document.getElementById('tab-ride');
+        const manageHorsesBtn = document.getElementById('manage-horses-btn');
+        const horseNameInput = document.getElementById('horse-name-input');
+        const horseList = document.getElementById('horse-list');
+        const addHorseBtn = document.getElementById('add-horse-btn');
+        const defaultHorseSelect = document.getElementById('default-horse-select');
+        const defaultDaySelect = document.getElementById('default-day-select');
+        const defaultSlotSelect = document.getElementById('default-slot-select');
+        const defaultRiderInput = document.getElementById('default-rider-input');
+        const addDefaultRideBtn = document.getElementById('add-default-ride-btn');
+        const defaultRideList = document.getElementById('default-ride-list');
+        const closeHorseModal = document.getElementById('close-horse-modal');
+        const rideHorseSelect = document.getElementById('ride-horse-select');
+        const rideSlotSelect = document.getElementById('ride-slot-select');
+        const rideRiderInput = document.getElementById('ride-rider-input');
+        const rideAwayCheckbox = document.getElementById('ride-away-checkbox');
+        const selectedRideDateEl = document.getElementById('selected-ride-date');
+        const rideForm = document.getElementById('ride-form');
+        const deleteRideOverrideBtn = document.getElementById('delete-ride-override');
+        const cancelRideBtn = document.getElementById('cancel-ride');
+        const closeRideModal = document.getElementById('close-ride-modal');
         const successMessage = document.getElementById('success-message');
         const cancelDayStatus = document.getElementById('cancel-day-status');
         const cancelShift = document.getElementById('cancel-shift');
@@ -1004,8 +295,9 @@
         const prevDayShiftBtn = document.getElementById('prev-day-shift');
         const nextDayShiftBtn = document.getElementById('next-day-shift');
     
-        // Translations
-        const dayNames = ['Mån', 'Tis', 'Ons', 'Tors', 'Fre', 'Lör', 'Sön'];
+        // Translations - Define both day name arrays
+        const dayNamesSundayStart = ['Sön', 'Mån', 'Tis', 'Ons', 'Tors', 'Fre', 'Lör'];
+        const dayNamesMondayStart = ['Mån', 'Tis', 'Ons', 'Tors', 'Fre', 'Lör', 'Sön'];
         const monthNames = ['Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni', 
                            'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December'];
         const shiftNames = {
@@ -1014,6 +306,16 @@
             'evening': 'Kväll'
         };
         
+        // Function to determine if we're in mobile view
+        function isMobileView() {
+            return window.innerWidth <= 767;
+        }
+        
+        // Function to get appropriate day names based on view
+        function getDayNames() {
+            return isMobileView() ? dayNamesSundayStart : dayNamesMondayStart;
+        }
+        
         // Special days data (could be expanded)
         const specialDays = {
             '2024-03-29': 'Långfredagen',
@@ -1021,18 +323,21 @@
         };
         
         // Current date tracking
-        let currentDate = new Date();
+        let currentDate = new Date(new Date().toLocaleDateString('sv-SE'));
         let currentMonth = currentDate.getMonth();
         let currentYear = currentDate.getFullYear();
+        let currentMode = 'stable'; // stable | ride
         
         // Schedule data containers
         let scheduleData = {};
         let specialEvents = {};
+        let horses = [];
+        let rideDefaults = [];
+        let rideOverrides = [];
+        let selectedRideDate = '';
         
         // Selected date for the modal
         let selectedDateStr = '';
-
-        
     
         // Open Day Status Modal (three dots)
         function openDayStatusModal(date) {
@@ -1058,13 +363,44 @@
             }
 
             // Rensa fälten först
-            document.getElementById("shift-name").value = "";
-            document.getElementById("missing-feed").checked = false;
+            shiftNameInput.value = "";
+            missingFeedCheckbox.checked = false;
+            syncMissingFeedState();
 
             // Hämta befintliga skift för att fylla i om det redan finns något sparat
             fetchShifts(date);
 
             document.getElementById("shift-modal").style.display = "block";
+        }
+
+        // Force fodring to only be used when no one is assigned
+        function syncMissingFeedState() {
+            const hasName = shiftNameInput.value.trim().length > 0;
+            if (hasName) {
+                missingFeedCheckbox.checked = false;
+                missingFeedCheckbox.disabled = true;
+                missingFeedCheckbox.title = "Fodring saknas används bara när inget pass är tillsatt";
+            } else {
+                missingFeedCheckbox.disabled = false;
+                missingFeedCheckbox.title = "";
+            }
+        }
+
+        // Mode handling
+        function setMode(mode) {
+            currentMode = mode;
+            if (mode === 'ride') {
+                tabRide.classList.add('active');
+                tabStable.classList.remove('active');
+                manageHorsesBtn.style.display = 'inline-flex';
+                fetchRideData();
+            } else {
+                tabStable.classList.add('active');
+                tabRide.classList.remove('active');
+                manageHorsesBtn.style.display = 'none';
+                fetchSchedule();
+            }
+            renderCalendar(currentMonth, currentYear);
         }
 
         // Format date for display (e.g., "25 februari 2025")
@@ -1135,6 +471,8 @@
             document.getElementById("mats-away").checked = dayStatus?.mats_away || false;
         }
 
+        shiftNameInput.addEventListener("input", syncMissingFeedState);
+
         async function fetchShifts(date) {
             const { data, error } = await supabase
                 .from('schedule_shifts')
@@ -1147,31 +485,29 @@
             }
 
             // Reset fields when modal opens
-            document.getElementById("shift-name").value = "";
-            document.getElementById("missing-feed").checked = false;
+            shiftNameInput.value = "";
+            missingFeedCheckbox.checked = false;
+            syncMissingFeedState();
 
             // Hämta valt skift från dropdown
             let shiftDropdown = document.getElementById("shift-type");
             let shiftType = shiftDropdown.value;
             let shift = data.find(s => s.shift === shiftType);
 
-            if (shift) {
-                document.getElementById("shift-name").value = shift.name || "";
-                document.getElementById("missing-feed").checked = shift.missing_feed || false;
-            }
+            const applyShiftToForm = (shiftRecord) => {
+                const hasName = Boolean(shiftRecord?.name?.trim());
+                shiftNameInput.value = hasName ? shiftRecord.name.trim() : "";
+                missingFeedCheckbox.checked = hasName ? false : (shiftRecord?.missing_feed || false);
+                syncMissingFeedState();
+            };
+
+            applyShiftToForm(shift);
 
             // Lägg till event listener på dropdown
             shiftDropdown.onchange = function () {
                 let newShiftType = this.value;
                 let newShift = data.find(s => s.shift === newShiftType);
-
-                if (newShift) {
-                    document.getElementById("shift-name").value = newShift.name || "";
-                    document.getElementById("missing-feed").checked = newShift.missing_feed || false;
-                } else {
-                    document.getElementById("shift-name").value = "";
-                    document.getElementById("missing-feed").checked = false;
-                }
+                applyShiftToForm(newShift);
             };
         }
 
@@ -1207,8 +543,8 @@
         shiftForm.addEventListener("submit", async function (e) {
             e.preventDefault();
             const date = shiftModal.dataset.date;
-            const name = document.getElementById("shift-name").value.trim();
-            const missingFeed = document.getElementById("missing-feed").checked;
+            const name = shiftNameInput.value.trim();
+            const missingFeed = name.length === 0 && missingFeedCheckbox.checked;
             const shiftType = document.getElementById("shift-type").value;
 
             // Validera shift type
@@ -1315,14 +651,15 @@
             // Process shift data
             shifts.forEach(shift => {
                 const { date, shift: shiftType, name, missing_feed } = shift;
-    
+                const hasName = Boolean(name && name.trim());
+
                 if (!scheduleData[date]) {
                     scheduleData[date] = {};
                 }
                 
-                scheduleData[date][shiftType] = name || "Ej tilldelat";
-    
-                if (missing_feed) {
+                scheduleData[date][shiftType] = hasName ? name.trim() : "Ej tilldelat";
+
+                if (missing_feed && !hasName) {
                     if (!specialEvents[date]) {
                         specialEvents[date] = { cleaningWeek: false, ibAway: false, matsAway: false, missingFeed: [] };
                     }
@@ -1336,16 +673,66 @@
             // Hide loading indicator
             successMessage.style.display = 'none';
         }
+
+        // Ride schema data
+        async function fetchRideData() {
+            showSuccessMessage('Laddar ridschema...', 'loading');
+            const { data: horseData, error: horseError } = await supabase
+                .from('horses')
+                .select('*')
+                .eq('archived', false)
+                .order('name');
+
+            if (horseError) {
+                console.error("Error fetching horses:", horseError);
+                showSuccessMessage('Fel vid hämtning av hästar', 'error');
+                return;
+            }
+
+            const { data: defaultData, error: defaultError } = await supabase
+                .from('horse_default_rides')
+                .select('*');
+
+            if (defaultError) {
+                console.error("Error fetching default rides:", defaultError);
+                showSuccessMessage('Fel vid hämtning av standardpass', 'error');
+                return;
+            }
+
+            const { data: overrideData, error: overrideError } = await supabase
+                .from('horse_ride_overrides')
+                .select('*');
+
+            if (overrideError) {
+                console.error("Error fetching ride overrides:", overrideError);
+                showSuccessMessage('Fel vid hämtning av avvikelser', 'error');
+                return;
+            }
+
+            horses = horseData || [];
+            rideDefaults = defaultData || [];
+            rideOverrides = overrideData || [];
+
+            populateHorseSelects();
+            renderDefaultRideList();
+            renderHorseList();
+            renderCalendar(currentMonth, currentYear);
+            successMessage.style.display = 'none';
+        }
     
         // Initialize calendar
         function initCalendar() {
-            // Add day headers
-            dayNames.forEach((day, index) => {
+            // Add day headers with the correct day names for current view
+            getDayNames().forEach((day, index) => {
                 const dayHeader = document.createElement('div');
                 dayHeader.className = 'day-header';
-                if (index >= 5) { // Lördag och söndag är helg i Sverige
+                
+                // Set weekend styling correctly based on the view
+                if ((isMobileView() && (index === 0 || index === 6)) || 
+                    (!isMobileView() && (index === 5 || index === 6))) {
                     dayHeader.classList.add('weekend');
                 }
+                
                 dayHeader.textContent = day;
                 calendar.appendChild(dayHeader);
             });
@@ -1362,18 +749,33 @@
             const headers = document.querySelectorAll('.day-header');
             calendar.innerHTML = '';
             
-            // Add back day headers
-            headers.forEach(header => {
-                calendar.appendChild(header.cloneNode(true));
+            // Get correct day names for current view
+            const currentDayNames = getDayNames();
+            
+            // Add back day headers with correct ordering
+            currentDayNames.forEach((day, index) => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                
+                // Set weekend styling correctly based on the view
+                if ((isMobileView() && (index === 0 || index === 6)) || 
+                    (!isMobileView() && (index === 5 || index === 6))) {
+                    dayHeader.classList.add('weekend');
+                }
+                
+                dayHeader.textContent = day;
+                calendar.appendChild(dayHeader);
             });
             
-            // Get first day of month and days in month
+            // Get first day of month
             const firstDay = new Date(year, month, 1).getDay(); // 0 is Sunday, 1 is Monday, etc.
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             
-            // Adjust first day for Monday start (0 = Monday, 6 = Sunday)
-            const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
-    
+            // Adjust first day based on view type
+            const adjustedFirstDay = isMobileView() 
+                ? firstDay // No adjustment needed for Sunday start
+                : (firstDay === 0 ? 6 : firstDay - 1); // Adjust for Monday start
+            
             // Add cells for previous month days
             const prevMonthDays = new Date(year, month, 0).getDate();
             for (let i = 0; i < adjustedFirstDay; i++) {
@@ -1386,8 +788,6 @@
                 calendar.appendChild(dayCell);
             }
             
-            // Get current week row to scroll to
-            let currentWeekRowIndex = -1;
             const today = new Date();
             
             // Add cells for current month days
@@ -1397,17 +797,11 @@
                                 month === today.getMonth() && 
                                 year === today.getFullYear();
                 
-                // Mark the current week row
-                if (isToday) {
-                    const rowIndex = Math.floor((adjustedFirstDay + i - 1) / 7);
-                    currentWeekRowIndex = rowIndex;
-                }
-                
                 const dayCell = createDayCell(i, dateStr, isToday ? 'today' : '');
                 calendar.appendChild(dayCell);
                 
-                // Add week number to the first day of each week
-                if ((adjustedFirstDay + i - 1) % 7 === 0) {
+                // Add week number (only for desktop view with Monday start)
+                if (!isMobileView() && (adjustedFirstDay + i - 1) % 7 === 0) {
                     const weekDate = new Date(year, month, i);
                     const weekNumber = getWeekNumber(weekDate);
                     
@@ -1415,7 +809,6 @@
                     weekNumberElement.className = 'week-number';
                     weekNumberElement.textContent = weekNumber;
                     
-                    // Add it to the first day cell of the week
                     dayCell.style.position = 'relative';
                     dayCell.appendChild(weekNumberElement);
                 }
@@ -1433,29 +826,6 @@
                 const dayCell = createDayCell(i, dateStr, 'inactive');
                 calendar.appendChild(dayCell);
             }
-            
-            // Scroll to current week if we're in the current month
-            if (currentWeekRowIndex >= 0) {
-                const rows = calendar.querySelectorAll(':scope > div:not(.day-header)');
-                const weekRows = [];
-                let currentRow = [];
-                
-                // Group cells into rows
-                rows.forEach((cell, index) => {
-                    currentRow.push(cell);
-                    if ((index + 1) % 7 === 0) {
-                        weekRows.push(currentRow);
-                        currentRow = [];
-                    }
-                });
-                
-                // Scroll to the current week
-                if (weekRows[currentWeekRowIndex] && weekRows[currentWeekRowIndex][0]) {
-                    setTimeout(() => {
-                        weekRows[currentWeekRowIndex][0].scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 100);
-                }
-            }
         }
         
         function createDayCell(day, dateStr, extraClass = '') {
@@ -1463,20 +833,38 @@
             cell.className = 'date-cell ' + extraClass;
             cell.classList.add('day'); // Add day class for click event
             cell.setAttribute('data-date', dateStr);
+            const createMarkerChip = (className, iconHtml, label) => {
+                const chip = document.createElement('div');
+                chip.className = `marker-chip ${className}`;
+                chip.innerHTML = iconHtml;
+                chip.title = label;
+                chip.setAttribute('aria-label', label);
+                return chip;
+            };
+            
+            // Create date object once and use it for both day name and weekend check
+            const date = new Date(dateStr);
+            const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+            
+            // Get the correct day names array based on view
+            const currentDayNames = getDayNames();
+            
+            // Calculate the correct day name index based on view type
+            const dayNameIndex = isMobileView() 
+                ? dayOfWeek // For mobile (Sunday start): use dayOfWeek directly
+                : (dayOfWeek === 0 ? 6 : dayOfWeek - 1); // For desktop (Monday start): adjust
+                
+            cell.setAttribute('data-day-name', currentDayNames[dayNameIndex]);
             
             // Create top row with date and options
             const topRow = document.createElement('div');
-            topRow.style.display = 'flex';
-            topRow.style.justifyContent = 'space-between';
-            topRow.style.alignItems = 'center';
+            topRow.className = 'top-row';
             
             // Add date number
             const dateNumber = document.createElement('div');
             dateNumber.className = 'date-number';
             
             // Make weekends red
-            const date = new Date(dateStr);
-            const dayOfWeek = date.getDay();
             if (dayOfWeek === 0 || dayOfWeek === 6) { // 0 is Sunday, 6 is Saturday
                 dateNumber.classList.add('weekend-date');
             }
@@ -1497,86 +885,127 @@
                 e.stopPropagation();
                 openDayStatusModal(dateStr);
             };
-            topRow.appendChild(options);
+            
+            // Inline marker icons (clean & mats)
+            const markerInline = document.createElement('div');
+            markerInline.className = 'marker-inline';
+
+            const topRight = document.createElement('div');
+            topRight.className = 'top-right';
+            topRight.appendChild(markerInline);
+            topRight.appendChild(options);
+
+            topRow.appendChild(topRight);
             
             cell.appendChild(topRow);
+            
+            if (specialEvents[dateStr]) {
+                const { cleaningWeek, ibAway, matsAway } = specialEvents[dateStr];
+                
+                if (ibAway) {
+                    cell.classList.add('ib-away');
+                }
+
+                if (cleaningWeek) {
+                    markerInline.appendChild(createMarkerChip('cleaning', '<i class="fas fa-broom"></i>', 'Städvecka'));
+                }
+                
+                if (matsAway) {
+                    markerInline.appendChild(createMarkerChip('mats-away', '<i class="fas fa-suitcase"></i>', 'Mats bortrest'));
+                }
+            }
             
             // Add events container
             const events = document.createElement('div');
             events.className = 'events';
             
-            // Add shifts
-            const shifts = ["morning", "lunch", "evening"];
-            const shiftIcons = {
-                "morning": '<i class="far fa-sun" style="width: 16px;"></i>',
-                "lunch": '<i class="far fa-clock" style="width: 16px;"></i>',
-                "evening": '<i class="far fa-moon" style="width: 16px;"></i>'
-            };
-            
-            shifts.forEach(shift => {
-                const event = document.createElement('div');
-                event.className = `event event-${shift}`;
-                event.setAttribute('data-shift-type', shift);
-                
-                if (scheduleData[dateStr] && scheduleData[dateStr][shift]) {
-                    event.innerHTML = `${shiftIcons[shift]} <span class="person-name">${scheduleData[dateStr][shift]}</span>`;
-                } else {
-                    event.innerHTML = `${shiftIcons[shift]} <span class="empty-event">${shiftNames[shift]}</span>`;
-                }
-                
-                // Style the event if feeding is missing
-                if (specialEvents[dateStr]?.missingFeed?.includes(shift)) {
-                    event.classList.add("missing-feed");
-                    
-                    // If it's an empty slot, update text for missing feed
-                    if (!scheduleData[dateStr] || !scheduleData[dateStr][shift]) {
-                        event.innerHTML = `${shiftIcons[shift]} <span style="display: flex; align-items: center; justify-content: flex-end;"><span class="missing-feed-text">⚠ Fodring</span><span class="empty-event" style="margin-left: 6px;">Ej tilldelat</span></span>`;
+            if (currentMode === 'ride') {
+                events.classList.add('ride-events');
+                const assignments = getRideAssignmentsForDate(dateStr);
+                const slots = [
+                    { key: 'morning', label: 'Morgon', icon: '<i class="far fa-sun"></i>' },
+                    { key: 'evening', label: 'Kväll', icon: '<i class="far fa-moon"></i>' }
+                ];
+
+                slots.forEach(slot => {
+                    const slotBlock = document.createElement('div');
+                    slotBlock.className = 'ride-slot-block';
+                    slotBlock.innerHTML = `<div class="ride-slot-label">${slot.icon}<span>${slot.label}</span></div>`;
+                    const slotAssignments = assignments.filter(a => a.slot === slot.key);
+                    const badgeWrap = document.createElement('div');
+                    badgeWrap.className = 'ride-badges';
+
+                    if (!slotAssignments.length) {
+                        const empty = document.createElement('div');
+                        empty.className = 'empty-event';
+                        empty.textContent = 'Ingen rider';
+                        badgeWrap.appendChild(empty);
                     } else {
-                        // Add indicator text inline with name
-                        const nameElement = event.querySelector('.person-name');
-                        const nameParent = nameElement.parentNode;
-                        nameParent.style.display = 'flex';
-                        nameParent.style.alignItems = 'center';
-                        nameParent.style.justifyContent = 'flex-end';
-                        nameParent.innerHTML = `<span class="missing-feed-text">⚠ Fodring</span><span class="person-name" style="margin-left: 6px;">${scheduleData[dateStr][shift]}</span>`;
+                        slotAssignments.forEach(a => {
+                            const badge = document.createElement('div');
+                            badge.className = 'ride-badge';
+                            if (a.away) badge.classList.add('away');
+                            badge.innerHTML = `<span class="horse-name">${a.horseName}</span><span class="rider-name">${a.rider || 'Ej angivet'}</span>`;
+                            badge.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                openRideModal(dateStr, a.horseId, a.slot);
+                            });
+                            badgeWrap.appendChild(badge);
+                        });
                     }
-                }
+
+                    const addBtn = document.createElement('button');
+                    addBtn.type = 'button';
+                    addBtn.className = 'button-secondary tiny';
+                    addBtn.textContent = '+ Lägg till';
+                    addBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openRideModal(dateStr, horses[0]?.id || null, slot.key);
+                    });
+
+                    slotBlock.appendChild(badgeWrap);
+                    slotBlock.appendChild(addBtn);
+                    events.appendChild(slotBlock);
+                });
+                cell.appendChild(events);
+            } else {
+                // Add shifts
+                const shifts = ["morning", "lunch", "evening"];
+                const shiftIcons = {
+                    "morning": '<i class="far fa-sun" style="width: 16px;"></i>',
+                    "lunch": '<i class="far fa-clock" style="width: 16px;"></i>',
+                    "evening": '<i class="far fa-moon" style="width: 16px;"></i>'
+                };
                 
-                // Lägg till klick-hantering för varje pass
-                event.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (!cell.classList.contains('inactive')) {
-                        openShiftModal(dateStr, shift);
+                shifts.forEach(shift => {
+                    const event = document.createElement('div');
+                    event.className = `event event-${shift}`;
+                    event.setAttribute('data-shift-type', shift);
+                    const hasAssignee = Boolean(scheduleData[dateStr]?.[shift] && scheduleData[dateStr][shift] !== "Ej tilldelat");
+                    const personName = hasAssignee ? scheduleData[dateStr][shift] : "";
+                    const isMissingFeed = specialEvents[dateStr]?.missingFeed?.includes(shift);
+
+                    if (hasAssignee) {
+                        event.innerHTML = `${shiftIcons[shift]} <span class="person-name">${personName}</span>`;
+                    } else if (isMissingFeed) {
+                        event.classList.add("missing-feed");
+                        event.innerHTML = `${shiftIcons[shift]} <span class="missing-feed-wrapper"><span class="missing-feed-text">⚠ Fodring</span><span class="empty-event" style="margin-left: 6px;">Ej tilldelat</span></span>`;
+                    } else {
+                        event.innerHTML = `${shiftIcons[shift]} <span class="empty-event">${shiftNames[shift]}</span>`;
                     }
+                    
+                    // Lägg till klick-hantering för varje pass
+                    event.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (!cell.classList.contains('inactive')) {
+                            openShiftModal(dateStr, shift);
+                        }
+                    });
+                    
+                    events.appendChild(event);
                 });
                 
-                events.appendChild(event);
-            });
-            
-            cell.appendChild(events);
-            
-            // Add markers for special events
-            if (specialEvents[dateStr]) {
-                // Cleaning week icon
-                if (specialEvents[dateStr].cleaningWeek) {
-                    const cleaningIcon = document.createElement('div');
-                    cleaningIcon.className = "icon-marker cleaning-icon";
-                    cleaningIcon.innerHTML = '<i class="fas fa-broom"></i>';
-                    cell.appendChild(cleaningIcon);
-                }
-                
-                // IB away (red border)
-                if (specialEvents[dateStr].ibAway) {
-                    cell.style.border = "1px solid var(--weekend-color)";
-                }
-                
-                // Mats away icon
-                if (specialEvents[dateStr].matsAway) {
-                    const matsIcon = document.createElement('div');
-                    matsIcon.className = "icon-marker mats-icon";
-                    matsIcon.innerHTML = '<i class="fas fa-suitcase"></i>';
-                    cell.appendChild(matsIcon);
-                }
+                cell.appendChild(events);
             }
             
             // Add special day text if applicable
@@ -1586,19 +1015,15 @@
                 specialDay.textContent = specialDays[dateStr];
                 cell.appendChild(specialDay);
             }
-            
-            // Add "Idag" text if it's today
-            if (extraClass.includes('today')) {
-                const todayIndicator = document.createElement('div');
-                todayIndicator.className = 'today-indicator';
-                todayIndicator.textContent = 'Idag';
-                cell.appendChild(todayIndicator);
-            }
-            
+
             // Add click handler to open shift modal
             cell.addEventListener('click', () => {
                 if (!cell.classList.contains('inactive')) {
-                    openShiftModal(dateStr);
+                    if (currentMode === 'ride') {
+                        openRideModal(dateStr, horses[0]?.id || null);
+                    } else {
+                        openShiftModal(dateStr);
+                    }
                 }
             });
             
@@ -1623,6 +1048,45 @@
             const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
             // Return week number
             return weekNo;
+        }
+
+        function getRideAssignmentsForDate(dateStr) {
+            const day = new Date(dateStr).getDay();
+            const horseMap = Object.fromEntries(horses.map(h => [h.id, h]));
+            const byKey = {};
+
+            rideDefaults.forEach(item => {
+                if (item.day_of_week !== day) return;
+                const horse = horseMap[item.horse_id];
+                if (!horse) return;
+                const key = `${item.horse_id}_${item.slot}`;
+                byKey[key] = {
+                    horseId: item.horse_id,
+                    horseName: horse.name,
+                    slot: item.slot,
+                    rider: item.rider_name || '',
+                    away: false,
+                    source: 'default'
+                };
+            });
+
+            rideOverrides.forEach(item => {
+                if (item.date !== dateStr) return;
+                const horse = horseMap[item.horse_id];
+                if (!horse) return;
+                const key = `${item.horse_id}_${item.slot}`;
+                const fallback = byKey[key]?.rider || '';
+                byKey[key] = {
+                    horseId: item.horse_id,
+                    horseName: horse.name,
+                    slot: item.slot,
+                    rider: item.rider_name || fallback,
+                    away: item.away,
+                    source: 'override'
+                };
+            });
+
+            return Object.values(byKey);
         }
         
         // Print function
@@ -1650,6 +1114,61 @@
                 }, 2000);
             }
         }
+
+        function populateHorseSelects() {
+            if (!horses) return;
+            const options = horses.map(h => `<option value="${h.id}">${h.name}</option>`).join('');
+            if (defaultHorseSelect) defaultHorseSelect.innerHTML = options;
+            if (rideHorseSelect) rideHorseSelect.innerHTML = options;
+        }
+
+        function renderHorseList() {
+            if (!horseList) return;
+            horseList.innerHTML = '';
+            if (!horses.length) {
+                horseList.innerHTML = '<div class="empty-state">Inga hästar ännu</div>';
+                return;
+            }
+            horses.forEach(horse => {
+                const row = document.createElement('div');
+                row.className = 'list-row';
+                row.innerHTML = `<span>${horse.name}</span>`;
+                const actions = document.createElement('div');
+                actions.className = 'list-actions';
+                const archiveBtn = document.createElement('button');
+                archiveBtn.className = 'button-secondary compact';
+                archiveBtn.textContent = 'Ta bort';
+                archiveBtn.onclick = () => archiveHorse(horse.id);
+                actions.appendChild(archiveBtn);
+                row.appendChild(actions);
+                horseList.appendChild(row);
+            });
+        }
+
+        function renderDefaultRideList() {
+            if (!defaultRideList) return;
+            defaultRideList.innerHTML = '';
+            if (!rideDefaults.length) {
+                defaultRideList.innerHTML = '<div class="empty-state">Inga standardpass ännu</div>';
+                return;
+            }
+            const horseMap = Object.fromEntries(horses.map(h => [h.id, h.name]));
+            const dayNames = ['Sön','Mån','Tis','Ons','Tors','Fre','Lör'];
+            rideDefaults.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'list-row';
+                row.innerHTML = `<span><strong>${horseMap[item.horse_id] || 'Häst'}</strong> • ${dayNames[item.day_of_week]} • ${item.slot === 'morning' ? 'Morgon' : 'Kväll'} • ${item.rider_name || 'Ej angivet'}</span>`;
+                const actions = document.createElement('div');
+                actions.className = 'list-actions';
+                const delBtn = document.createElement('button');
+                delBtn.className = 'button-secondary compact';
+                delBtn.textContent = 'Ta bort';
+                delBtn.onclick = () => deleteDefaultRide(item.id);
+                actions.appendChild(delBtn);
+                row.appendChild(actions);
+                defaultRideList.appendChild(row);
+            });
+        }
         
         // Close modals when clicking outside
         window.addEventListener('click', (e) => {
@@ -1659,7 +1178,103 @@
             if (e.target === shiftModal) {
                 shiftModal.style.display = 'none';
             }
+            if (e.target === horseModal) {
+                horseModal.style.display = 'none';
+            }
+            if (e.target === rideModal) {
+                rideModal.style.display = 'none';
+            }
         });
+        
+        // Add resize event listener to handle view changes
+        window.addEventListener('resize', () => {
+            renderCalendar(currentMonth, currentYear);
+        });
+
+        async function addHorse() {
+            const name = horseNameInput.value.trim();
+            if (!name) return;
+            const { error } = await supabase.from('horses').insert([{ name }]);
+            if (error) {
+                console.error('Error adding horse', error);
+                showSuccessMessage('Kunde inte spara häst', 'error');
+                return;
+            }
+            horseNameInput.value = '';
+            fetchRideData();
+        }
+
+        async function archiveHorse(id) {
+            const { error } = await supabase.from('horses').update({ archived: true }).eq('id', id);
+            if (error) {
+                console.error('Error archiving horse', error);
+                showSuccessMessage('Kunde inte ta bort häst', 'error');
+                return;
+            }
+            fetchRideData();
+        }
+
+        async function addDefaultRide() {
+            const horseId = defaultHorseSelect.value;
+            const day = parseInt(defaultDaySelect.value, 10);
+            const slot = defaultSlotSelect.value;
+            const rider = defaultRiderInput.value.trim();
+            if (!horseId || !slot) return;
+            const { error } = await supabase
+                .from('horse_default_rides')
+                .upsert([{ horse_id: horseId, day_of_week: day, slot, rider_name: rider }], { onConflict: ['horse_id', 'day_of_week', 'slot'] });
+            if (error) {
+                console.error('Error saving default ride', error);
+                showSuccessMessage('Kunde inte spara standardpass', 'error');
+                return;
+            }
+            defaultRiderInput.value = '';
+            fetchRideData();
+        }
+
+        async function deleteDefaultRide(id) {
+            const { error } = await supabase.from('horse_default_rides').delete().eq('id', id);
+            if (error) {
+                console.error('Error deleting default ride', error);
+                showSuccessMessage('Kunde inte ta bort standardpass', 'error');
+                return;
+            }
+            fetchRideData();
+        }
+
+        // Manual jump to today to avoid unexpected auto-scrolls
+        function scrollToToday() {
+            currentMonth = currentDate.getMonth();
+            currentYear = currentDate.getFullYear();
+            renderCalendar(currentMonth, currentYear);
+
+            setTimeout(() => {
+                const todayElement = document.querySelector('.date-cell.today');
+                if (todayElement) {
+                    todayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+        }
+
+        if (scrollToTodayBtn) {
+            scrollToTodayBtn.addEventListener('click', scrollToToday);
+        }
+
+        tabStable.addEventListener('click', () => setMode('stable'));
+        tabRide.addEventListener('click', () => setMode('ride'));
+        if (manageHorsesBtn) manageHorsesBtn.addEventListener('click', () => {
+            populateHorseSelects();
+            renderHorseList();
+            renderDefaultRideList();
+            horseModal.style.display = 'block';
+        });
+        addHorseBtn?.addEventListener('click', addHorse);
+        addDefaultRideBtn?.addEventListener('click', addDefaultRide);
+        closeHorseModal?.addEventListener('click', () => horseModal.style.display = 'none');
+        rideForm?.addEventListener('submit', saveRideOverride);
+        deleteRideOverrideBtn?.addEventListener('click', deleteRideOverride);
+        cancelRideBtn?.addEventListener('click', () => rideModal.style.display = 'none');
+        closeRideModal?.addEventListener('click', () => rideModal.style.display = 'none');
         
         // Navigation event listeners
         prevMonthBtn.addEventListener('click', () => {
@@ -1669,6 +1284,13 @@
                 currentYear--;
             }
             renderCalendar(currentMonth, currentYear);
+
+            setTimeout(() => {
+                const firstDayElement = document.querySelector('.date-cell:not(.inactive)');
+                if (firstDayElement) {
+                    firstDayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 300);
         });
         
         nextMonthBtn.addEventListener('click', () => {
@@ -1678,10 +1300,80 @@
                 currentYear++;
             }
             renderCalendar(currentMonth, currentYear);
+
+            setTimeout(() => {
+                const firstDayElement = document.querySelector('.date-cell:not(.inactive)');
+                if (firstDayElement) {
+                    firstDayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 300);
         });
         
         // Print button event listener
         printBtn.addEventListener('click', printSchedule);
+
+        // Ride forms and modals
+        function openRideModal(dateStr, horseId = null, slot = 'morning') {
+            selectedRideDate = dateStr;
+            selectedRideDateEl.textContent = formatDisplayDate(dateStr);
+            rideModal.dataset.date = dateStr;
+            populateHorseSelects();
+            if (horseId) rideHorseSelect.value = horseId;
+            rideSlotSelect.value = slot;
+
+            // Prefill from override or default
+            const override = rideOverrides.find(o => o.date === dateStr && o.horse_id === rideHorseSelect.value && o.slot === slot);
+            const day = new Date(dateStr).getDay();
+            const defaultRide = rideDefaults.find(d => d.horse_id === rideHorseSelect.value && d.slot === slot && d.day_of_week === day);
+            rideRiderInput.value = override?.rider_name || defaultRide?.rider_name || '';
+            rideAwayCheckbox.checked = override?.away || false;
+
+            rideModal.style.display = 'block';
+        }
+
+        async function saveRideOverride(e) {
+            e.preventDefault();
+            const date = selectedRideDate;
+            const horseId = rideHorseSelect.value;
+            const slot = rideSlotSelect.value;
+            const rider = rideRiderInput.value.trim();
+            const away = rideAwayCheckbox.checked;
+            if (!horseId) {
+                showSuccessMessage('Välj häst', 'error');
+                return;
+            }
+            const { error } = await supabase
+                .from('horse_ride_overrides')
+                .upsert([{ date, horse_id: horseId, slot, rider_name: rider, away }], { onConflict: ['date', 'horse_id', 'slot'] });
+            if (error) {
+                console.error('Error saving ride override', error);
+                showSuccessMessage('Kunde inte spara', 'error');
+                return;
+            }
+            rideModal.style.display = 'none';
+            fetchRideData();
+            showSuccessMessage('Sparat');
+        }
+
+        async function deleteRideOverride() {
+            const date = selectedRideDate;
+            const horseId = rideHorseSelect.value;
+            const slot = rideSlotSelect.value;
+            const { error } = await supabase
+                .from('horse_ride_overrides')
+                .delete()
+                .eq('date', date)
+                .eq('horse_id', horseId)
+                .eq('slot', slot);
+            if (error) {
+                console.error('Error deleting ride override', error);
+                showSuccessMessage('Kunde inte ta bort', 'error');
+                return;
+            }
+            rideModal.style.display = 'none';
+            fetchRideData();
+            showSuccessMessage('Borttagen');
+        }
         
         // Initialize the calendar when the page loads
         document.addEventListener("DOMContentLoaded", () => {
@@ -1692,12 +1384,6 @@
             currentMonth = currentDate.getMonth();
             currentYear = currentDate.getFullYear();
             renderCalendar(currentMonth, currentYear);
-
-            // Update the today-circle-example with current date
-            const todayCircleExample = document.querySelector('.today-circle-example');
-            if (todayCircleExample) {
-                todayCircleExample.textContent = currentDate.getDate();
-            }
         });
     </script>
 </body>
